@@ -2,6 +2,7 @@ package io.github.julianapinheiro.messenger.resources;
 
 import java.util.List;
 
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -10,13 +11,13 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import io.github.julianapinheiro.messenger.model.Message;
+import io.github.julianapinheiro.messenger.resources.beans.MessageFilterBean;
 import io.github.julianapinheiro.messenger.service.MessageService;
 
-@Path("messages")
+@Path("/messages")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 
@@ -25,14 +26,12 @@ public class MessageResource {
 	MessageService messageService = new MessageService();
 	
 	@GET
-	public List<Message> getMessages(@QueryParam("year") int year,
-									@QueryParam("start") int start,
-									@QueryParam("size") int size) {
-		if (year > 0) {
-			return messageService.getAllMessagesForYear(year);
+	public List<Message> getMessages(@BeanParam MessageFilterBean filterBean) {
+		if (filterBean.getYear() > 0) {
+			return messageService.getAllMessagesForYear(filterBean.getYear());
 		}
-		if (start >= 0 && size > 0) {
-			return messageService.geatAllMessagesPaginated(start, size);
+		if (filterBean.getStart() >= 0 && filterBean.getSize() > 0) {
+			return messageService.geatAllMessagesPaginated(filterBean.getStart(), filterBean.getSize());
 		}
 		return messageService.getAllMessages();
 	}
@@ -61,6 +60,11 @@ public class MessageResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Message getMessage(@PathParam("messageId") long id) {
 		return messageService.getMessage(id);  
+	}
+	
+	@Path("/{messageId}/comments")
+	public CommentResource getCommentResource() {
+		return new CommentResource();
 	}
 	
 }
